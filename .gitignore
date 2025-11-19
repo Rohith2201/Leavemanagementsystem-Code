@@ -4,5 +4,4 @@ target/
 
 # Angular
 frontend/dist/
-frontend/.angular/cache/
 frontend/node_modules/
