@@ -1,0 +1,8 @@
+# Maven
+target/
+.mvn/wrapper/maven-wrapper.jar
+
+# Angular
+frontend/dist/
+frontend/.angular/cache/
+frontend/node_modules/

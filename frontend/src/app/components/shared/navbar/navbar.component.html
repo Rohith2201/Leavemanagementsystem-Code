@@ -1,0 +1,27 @@
+<nav class="navbar">
+  <div class="navbar-container">
+    <div class="navbar-brand">
+      <a href="/" class="brand-link">Leave Management System</a>
+    </div>
+    
+    <div class="navbar-menu" *ngIf="isLoggedIn$ | async">
+      <div class="navbar-items">
+        <a routerLink="/dashboard" routerLinkActive="active" class="nav-link">Dashboard</a>
+        
+        <div class="nav-item-group" *ngIf="userRole$ | async as role">
+          <a *ngIf="role === 'EMPLOYEE'" routerLink="/dashboard/my-leaves" routerLinkActive="active" class="nav-link">My Leaves</a>
+          <a *ngIf="role === 'EMPLOYEE'" routerLink="/dashboard/apply-leave" routerLinkActive="active" class="nav-link">Apply Leave</a>
+          
+          <a *ngIf="role === 'MANAGER'" routerLink="/dashboard/approvals" routerLinkActive="active" class="nav-link">Approvals</a>
+          <a *ngIf="role === 'MANAGER'" routerLink="/dashboard/team-leaves" routerLinkActive="active" class="nav-link">Team Leaves</a>
+          <a *ngIf="role === 'MANAGER'" routerLink="/dashboard/reports" routerLinkActive="active" class="nav-link">Reports</a>
+        </div>
+      </div>
+      
+      <div class="navbar-user">
+        <span class="user-info">{{ (currentUser$ | async)?.username }}</span>
+        <button (click)="logout()" class="logout-btn">Logout</button>
+      </div>
+    </div>
+  </div>
+</nav>

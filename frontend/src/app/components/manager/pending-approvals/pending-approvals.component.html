@@ -1,0 +1,74 @@
+<div class="pending-approvals-container">
+  <h2>Pending Leave Approvals</h2>
+
+  <div *ngIf="successMessage" class="alert alert-success">
+    {{ successMessage }}
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-error">
+    {{ errorMessage }}
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    <p>Loading pending approvals...</p>
+  </div>
+
+  <div *ngIf="!loading && pendingLeaves.length === 0" class="no-data">
+    <p>No pending leave approvals</p>
+  </div>
+
+  <div *ngIf="!loading && pendingLeaves.length > 0" class="approvals-list">
+    <div *ngFor="let leave of pendingLeaves" class="approval-card" (click)="selectLeave(leave)">
+      <div class="card-header">
+        <h3>{{ leave.employee.username }}</h3>
+        <span class="leave-type">{{ leave.leaveType }}</span>
+      </div>
+
+      <div class="card-details">
+        <p><strong>Period:</strong> {{ leave.startDate | date: 'MMM dd' }} - {{ leave.endDate | date: 'MMM dd, yyyy' }}</p>
+        <p><strong>Duration:</strong> {{ calculateDays(leave) }} days</p>
+        <p><strong>Reason:</strong> {{ leave.reason }}</p>
+      </div>
+
+      <button class="card-action">View & Decide</button>
+    </div>
+  </div>
+
+  <!-- Modal for Approval Decision -->
+  <div *ngIf="selectedLeave" class="modal-overlay" (click)="closeModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Review Leave Application</h3>
+        <button class="close-btn" (click)="closeModal()">×</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="leave-info">
+          <h4>{{ selectedLeave.employee.username }}</h4>
+          <p><strong>Leave Type:</strong> {{ selectedLeave.leaveType }}</p>
+          <p><strong>Start Date:</strong> {{ selectedLeave.startDate | date: 'MMM dd, yyyy' }}</p>
+          <p><strong>End Date:</strong> {{ selectedLeave.endDate | date: 'MMM dd, yyyy' }}</p>
+          <p><strong>Duration:</strong> {{ calculateDays(selectedLeave) }} days</p>
+          <p><strong>Reason:</strong> {{ selectedLeave.reason }}</p>
+        </div>
+
+        <div class="form-group">
+          <label for="comments">Comments (Required for Rejection)</label>
+          <textarea
+            id="comments"
+            [(ngModel)]="approvalComments"
+            class="form-control"
+            rows="4"
+            placeholder="Add any conditions or comments for the employee"
+          ></textarea>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button (click)="approveLeave()" class="btn btn-approve">Approve</button>
+        <button (click)="rejectLeave()" class="btn btn-reject">Reject</button>
+        <button (click)="closeModal()" class="btn btn-cancel">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>

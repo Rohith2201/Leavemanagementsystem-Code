@@ -1,0 +1,91 @@
+<div class="apply-leave-container">
+  <h2>Apply for Leave</h2>
+  
+  <div class="leave-balance-card">
+    <div class="balance-info">
+      <p><strong>Available Leave Balance:</strong> {{ leaveBalance }} days</p>
+    </div>
+  </div>
+
+  <div *ngIf="successMessage" class="alert alert-success">
+    {{ successMessage }}
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-error">
+    {{ errorMessage }}
+  </div>
+
+  <form [formGroup]="applyLeaveForm" (ngSubmit)="onSubmit()" class="leave-form">
+    <div class="form-group">
+      <label for="leaveType">Leave Type</label>
+      <select id="leaveType" formControlName="leaveType" class="form-control" required>
+        <option value="">Select Leave Type</option>
+        <option *ngFor="let type of leaveTypes" [value]="type">{{ type }}</option>
+      </select>
+      <span class="error" *ngIf="applyLeaveForm.get('leaveType')?.invalid && applyLeaveForm.get('leaveType')?.touched">
+        Leave type is required
+      </span>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="startDate">Start Date</label>
+        <input
+          type="date"
+          id="startDate"
+          formControlName="startDate"
+          class="form-control"
+          required
+        />
+        <span class="error" *ngIf="applyLeaveForm.get('startDate')?.invalid && applyLeaveForm.get('startDate')?.touched">
+          Start date is required
+        </span>
+      </div>
+
+      <div class="form-group">
+        <label for="endDate">End Date</label>
+        <input
+          type="date"
+          id="endDate"
+          formControlName="endDate"
+          class="form-control"
+          required
+        />
+        <span class="error" *ngIf="applyLeaveForm.get('endDate')?.invalid && applyLeaveForm.get('endDate')?.touched">
+          End date is required
+        </span>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="reason">Reason for Leave</label>
+      <textarea
+        id="reason"
+        formControlName="reason"
+        class="form-control"
+        rows="4"
+        placeholder="Provide a detailed reason for your leave request"
+        required
+      ></textarea>
+      <span class="error" *ngIf="applyLeaveForm.get('reason')?.invalid && applyLeaveForm.get('reason')?.touched">
+        Reason is required (minimum 10 characters)
+      </span>
+    </div>
+
+    <div class="form-group">
+      <label for="documentPath">Supporting Documents (Optional)</label>
+      <input
+        type="file"
+        id="documentPath"
+        formControlName="documentPath"
+        class="form-control"
+      />
+      <small>Attach medical certificates or supporting documents if applicable</small>
+    </div>
+
+    <button type="submit" class="btn btn-primary" [disabled]="loading || applyLeaveForm.invalid">
+      <span *ngIf="!loading">Submit Leave Application</span>
+      <span *ngIf="loading">Submitting...</span>
+    </button>
+  </form>
+</div>

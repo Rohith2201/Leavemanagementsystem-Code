@@ -1,0 +1,198 @@
+<div class="dashboard-container">
+  <!-- Router outlet for nested child components -->
+  <router-outlet></router-outlet>
+
+  <!-- EMPLOYEE DASHBOARD - Only shown when /dashboard is accessed directly (no child route active) -->
+  <ng-container *ngIf="!isChildRouteActive()">
+    <div class="dashboard-header" *ngIf="currentUser?.role === 'EMPLOYEE'">
+      <h1>Employee Dashboard</h1>
+      <p *ngIf="currentUser" class="welcome-text">Welcome, {{ currentUser.username }}! 👋</p>
+    </div>
+
+    <div class="dashboard-content" *ngIf="currentUser?.role === 'EMPLOYEE'">
+      <!-- Quick Actions Section -->
+      <div class="quick-actions">
+        <h2>Quick Actions</h2>
+        <div class="action-buttons">
+          <button class="action-btn apply-btn" (click)="navigateTo('/dashboard/apply-leave')" routerLink="/dashboard/apply-leave">
+            <span class="icon">📝</span>
+            <span class="text">Apply for Leave</span>
+          </button>
+          <button class="action-btn history-btn" (click)="navigateTo('/dashboard/my-leaves')" routerLink="/dashboard/my-leaves">
+            <span class="icon">📋</span>
+            <span class="text">View My Leaves</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Features Overview -->
+      <div class="features-section">
+        <h2>Available Features</h2>
+        <div class="features-grid">
+          <div class="feature-card">
+            <h3>Apply for Leave</h3>
+            <p>Submit your leave requests with different leave types (Vacation, Sick, Personal, Casual)</p>
+            <ul>
+              <li>✓ Multiple leave types</li>
+              <li>✓ Document upload</li>
+              <li>✓ Balance validation</li>
+              <li>✓ Conflict checking</li>
+            </ul>
+          </div>
+
+          <div class="feature-card">
+            <h3>View Leave History</h3>
+            <p>Track all your leave requests and their current status</p>
+            <ul>
+              <li>✓ Complete history</li>
+              <li>✓ Status filtering</li>
+              <li>✓ Current balance display</li>
+              <li>✓ Cancel pending leaves</li>
+            </ul>
+          </div>
+
+          <div class="feature-card">
+            <h3>Manage Requests</h3>
+            <p>Monitor your leave applications and take actions as needed</p>
+            <ul>
+              <li>✓ View approval status</li>
+              <li>✓ See rejection reasons</li>
+              <li>✓ Cancel if needed</li>
+              <li>✓ Real-time updates</li>
+            </ul>
+          </div>
+
+          <div class="feature-card">
+            <h3>Stay Organized</h3>
+            <p>Keep track of your leave balance and upcoming leaves</p>
+            <ul>
+              <li>✓ Balance tracking</li>
+              <li>✓ Year overview</li>
+              <li>✓ Status notifications</li>
+              <li>✓ Quick access</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- User Info Section -->
+      <div class="user-info-section" *ngIf="currentUser">
+        <h2>Your Information</h2>
+        <div class="info-box">
+          <div class="info-item">
+            <span class="label">Username:</span>
+            <span class="value">{{ currentUser.username }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Email:</span>
+            <span class="value">{{ currentUser.email }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Role:</span>
+            <span class="value role-badge">{{ currentUser.role }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MANAGER DASHBOARD - Only shown when /dashboard is accessed directly (no child route active) -->
+    <div class="dashboard-header" *ngIf="currentUser?.role === 'MANAGER'">
+      <h1>Manager Dashboard</h1>
+      <p *ngIf="currentUser" class="welcome-text">Welcome Manager, {{ currentUser.username }}! 👨‍💼</p>
+    </div>
+
+    <div class="dashboard-content manager-dashboard" *ngIf="currentUser?.role === 'MANAGER'">
+      <!-- Quick Actions Section -->
+      <div class="quick-actions">
+        <h2>Quick Actions</h2>
+        <div class="action-buttons">
+          <button class="action-btn approvals-btn" (click)="navigateTo('/dashboard/approvals')" routerLink="/dashboard/approvals">
+            <span class="icon">✅</span>
+            <span class="text">Pending Approvals</span>
+          </button>
+          <button class="action-btn team-btn" (click)="navigateTo('/dashboard/team-leaves')" routerLink="/dashboard/team-leaves">
+            <span class="icon">👥</span>
+            <span class="text">Team Leaves</span>
+          </button>
+          <button class="action-btn reports-btn" (click)="navigateTo('/dashboard/reports')" routerLink="/dashboard/reports">
+            <span class="icon">📊</span>
+            <span class="text">Leave Reports</span>
+          </button>
+          <button class="action-btn allocate-btn" (click)="navigateTo('/dashboard/allocate-leaves')" routerLink="/dashboard/allocate-leaves">
+            <span class="icon">🎁</span>
+            <span class="text">Allocate Leaves</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Manager Features Overview -->
+      <div class="features-section">
+        <h2>Management Features</h2>
+        <div class="features-grid">
+          <div class="feature-card">
+            <h3>Pending Approvals</h3>
+            <p>Review and manage employee leave requests awaiting your approval</p>
+            <ul>
+              <li>✓ View pending requests</li>
+              <li>✓ Approve leaves</li>
+              <li>✓ Reject with reasons</li>
+              <li>✓ Add comments</li>
+            </ul>
+          </div>
+
+          <div class="feature-card">
+            <h3>Team Leaves</h3>
+            <p>View and manage all leave requests from your team members</p>
+            <ul>
+              <li>✓ Team visibility</li>
+              <li>✓ Status tracking</li>
+              <li>✓ Conflict detection</li>
+              <li>✓ Export options</li>
+            </ul>
+          </div>
+
+          <div class="feature-card">
+            <h3>Leave Reports</h3>
+            <p>Generate comprehensive reports on team leave patterns and usage</p>
+            <ul>
+              <li>✓ Usage analytics</li>
+              <li>✓ Trend analysis</li>
+              <li>✓ Balance reports</li>
+              <li>✓ Period summaries</li>
+            </ul>
+          </div>
+
+          <div class="feature-card">
+            <h3>Team Management</h3>
+            <p>Manage your team's leave balance and administrative tasks</p>
+            <ul>
+              <li>✓ Adjust balances</li>
+              <li>✓ Bulk operations</li>
+              <li>✓ Approval history</li>
+              <li>✓ Audit trail</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Manager Info Section -->
+      <div class="user-info-section" *ngIf="currentUser">
+        <h2>Your Information</h2>
+        <div class="info-box">
+          <div class="info-item">
+            <span class="label">Manager Name:</span>
+            <span class="value">{{ currentUser.username }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Email:</span>
+            <span class="value">{{ currentUser.email }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Role:</span>
+            <span class="value role-badge manager-badge">{{ currentUser.role }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+</div>

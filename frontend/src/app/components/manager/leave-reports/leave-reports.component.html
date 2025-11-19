@@ -1,0 +1,258 @@
+<div class="leave-reports-container">
+  <h2>Leave Management Reports</h2>
+
+  <div *ngIf="errorMessage" class="alert alert-error">
+    {{ errorMessage }}
+  </div>
+
+  <!-- Date Range Filter -->
+  <div class="date-filter">
+    <div class="filter-group">
+      <label for="start-date">Start Date:</label>
+      <input 
+        type="date" 
+        id="start-date" 
+        [(ngModel)]="reportStartDate" 
+        (change)="onDateRangeChange()"
+        class="form-control"
+      />
+    </div>
+
+    <div class="filter-group">
+      <label for="end-date">End Date:</label>
+      <input 
+        type="date" 
+        id="end-date" 
+        [(ngModel)]="reportEndDate" 
+        (change)="onDateRangeChange()"
+        class="form-control"
+      />
+    </div>
+
+    <button (click)="exportReport()" class="btn btn-export">📥 Export as CSV</button>
+  </div>
+
+  <!-- Report Navigation -->
+  <div class="report-nav">
+    <button 
+      (click)="switchReport('summary')" 
+      [class.active]="displayedReports === 'summary'"
+      class="nav-btn"
+    >
+      Summary
+    </button>
+    <button 
+      (click)="switchReport('breakdown')" 
+      [class.active]="displayedReports === 'breakdown'"
+      class="nav-btn"
+    >
+      Leave Type Breakdown
+    </button>
+    <button 
+      (click)="switchReport('employee')" 
+      [class.active]="displayedReports === 'employee'"
+      class="nav-btn"
+    >
+      Employee-wise
+    </button>
+    <button 
+      (click)="switchReport('monthly')" 
+      [class.active]="displayedReports === 'monthly'"
+      class="nav-btn"
+    >
+      Monthly Trend
+    </button>
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    <p>Generating reports...</p>
+  </div>
+
+  <!-- Summary Report -->
+  <div *ngIf="!loading && displayedReports === 'summary'" class="report-section">
+    <h3>Leave Summary Statistics</h3>
+
+    <div class="stats-grid">
+      <div class="stat-card total">
+        <h4>Total Leave Applications</h4>
+        <p class="stat-value">{{ totalLeaves }}</p>
+      </div>
+
+      <div class="stat-card approved">
+        <h4>Approved</h4>
+        <p class="stat-value">{{ approvedLeaves }}</p>
+        <p class="stat-percentage">{{ getApprovalPercentage() }}% of total</p>
+      </div>
+
+      <div class="stat-card pending">
+        <h4>Pending</h4>
+        <p class="stat-value">{{ pendingLeaves }}</p>
+        <p class="stat-percentage">{{ getPendingPercentage() }}% of total</p>
+      </div>
+
+      <div class="stat-card rejected">
+        <h4>Rejected</h4>
+        <p class="stat-value">{{ rejectedLeaves }}</p>
+        <p class="stat-percentage">{{ getRejectionPercentage() }}% of total</p>
+      </div>
+
+      <div class="stat-card cancelled">
+        <h4>Cancelled</h4>
+        <p class="stat-value">{{ cancelledLeaves }}</p>
+      </div>
+    </div>
+
+    <!-- Progress Bars -->
+    <div class="progress-section">
+      <h4>Approval Status Distribution</h4>
+
+      <div class="progress-item">
+        <label>Approved</label>
+        <div class="progress-bar">
+          <div class="progress-fill approved" [style.width.%]="getApprovalPercentage()"></div>
+        </div>
+        <span class="progress-label">{{ approvedLeaves }} / {{ totalLeaves }}</span>
+      </div>
+
+      <div class="progress-item">
+        <label>Pending</label>
+        <div class="progress-bar">
+          <div class="progress-fill pending" [style.width.%]="getPendingPercentage()"></div>
+        </div>
+        <span class="progress-label">{{ pendingLeaves }} / {{ totalLeaves }}</span>
+      </div>
+
+      <div class="progress-item">
+        <label>Rejected</label>
+        <div class="progress-bar">
+          <div class="progress-fill rejected" [style.width.%]="getRejectionPercentage()"></div>
+        </div>
+        <span class="progress-label">{{ rejectedLeaves }} / {{ totalLeaves }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Leave Type Breakdown Report -->
+  <div *ngIf="!loading && displayedReports === 'breakdown'" class="report-section">
+    <h3>Leave Type Breakdown (Approved Leaves Only)</h3>
+
+    <div class="breakdown-grid">
+      <div *ngFor="let type of ['VACATION', 'SICK', 'PERSONAL', 'CASUAL']" class="breakdown-card">
+        <div class="leave-type-icon">{{ type.charAt(0) }}</div>
+        <h4>{{ type }}</h4>
+        <p class="breakdown-count">{{ leaveTypeBreakdown[type] }} days</p>
+      </div>
+    </div>
+
+    <!-- Breakdown Table -->
+    <div class="table-section">
+      <h4>Leave Type Summary</h4>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Leave Type</th>
+            <th>Approved Count</th>
+            <th>Percentage</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let type of ['VACATION', 'SICK', 'PERSONAL', 'CASUAL']">
+            <td>{{ type }}</td>
+            <td>{{ leaveTypeBreakdown[type] }}</td>
+            <td>
+              <div class="mini-bar">
+                <span *ngIf="approvedLeaves > 0">
+                  {{ ((leaveTypeBreakdown[type] / approvedLeaves) * 100).toFixed(1) }}%
+                </span>
+                <span *ngIf="approvedLeaves === 0">0%</span>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Employee-wise Report -->
+  <div *ngIf="!loading && displayedReports === 'employee'" class="report-section">
+    <h3>Employee-wise Leave Summary</h3>
+
+    <div class="employee-table-section">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Employee</th>
+            <th>Total</th>
+            <th>Approved</th>
+            <th>Pending</th>
+            <th>Rejected</th>
+            <th>Cancelled</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of getEmployeeBreakdownArray()">
+            <td><strong>{{ item.data.name }}</strong></td>
+            <td class="center">{{ item.data.total }}</td>
+            <td class="center status-approved">{{ item.data.approved }}</td>
+            <td class="center status-pending">{{ item.data.pending }}</td>
+            <td class="center status-rejected">{{ item.data.rejected }}</td>
+            <td class="center status-cancelled">{{ item.data.cancelled }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Monthly Trend Report -->
+  <div *ngIf="!loading && displayedReports === 'monthly'" class="report-section">
+    <h3>Monthly Leave Trend</h3>
+
+    <div class="monthly-table-section">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Month</th>
+            <th>Total</th>
+            <th>Approved</th>
+            <th>Pending</th>
+            <th>Rejected</th>
+            <th>Cancelled</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let month of monthlyBreakdown">
+            <td><strong>{{ month.month }}</strong></td>
+            <td class="center">{{ month.total }}</td>
+            <td class="center status-approved">{{ month.approved }}</td>
+            <td class="center status-pending">{{ month.pending }}</td>
+            <td class="center status-rejected">{{ month.rejected }}</td>
+            <td class="center status-cancelled">{{ month.cancelled }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Monthly Chart (Simple Bar Representation) -->
+    <div class="chart-section">
+      <h4>Monthly Leave Applications Trend</h4>
+      <div class="simple-chart">
+        <div *ngFor="let month of monthlyBreakdown" class="chart-bar-group">
+          <div class="chart-label">{{ month.month }}</div>
+          <div class="chart-bars">
+            <div class="chart-bar approved" [style.height.%]="(month.approved / 10) * 100" [title]="'Approved: ' + month.approved"></div>
+            <div class="chart-bar pending" [style.height.%]="(month.pending / 10) * 100" [title]="'Pending: ' + month.pending"></div>
+            <div class="chart-bar rejected" [style.height.%]="(month.rejected / 10) * 100" [title]="'Rejected: ' + month.rejected"></div>
+            <div class="chart-bar cancelled" [style.height.%]="(month.cancelled / 10) * 100" [title]="'Cancelled: ' + month.cancelled"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-legend">
+        <span class="legend-item approved">Approved</span>
+        <span class="legend-item pending">Pending</span>
+        <span class="legend-item rejected">Rejected</span>
+        <span class="legend-item cancelled">Cancelled</span>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,129 @@
+<div class="team-leaves-container">
+  <h2>Team Leave Schedule</h2>
+
+  <div *ngIf="errorMessage" class="alert alert-error">
+    {{ errorMessage }}
+  </div>
+
+  <div class="controls">
+    <div class="filter-group">
+      <label for="employee-filter">Filter by Employee:</label>
+      <select 
+        id="employee-filter" 
+        [(ngModel)]="selectedEmployee" 
+        (change)="onEmployeeChange()"
+        class="form-control"
+      >
+        <option value="all">All Team Members</option>
+        <option *ngFor="let member of teamMembers" [value]="member.id">
+          {{ member.username }} ({{ member.email }})
+        </option>
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label for="status-filter">Filter by Status:</label>
+      <select 
+        id="status-filter" 
+        [(ngModel)]="selectedStatus" 
+        (change)="onStatusChange()"
+        class="form-control"
+      >
+        <option value="all">All Statuses</option>
+        <option value="PENDING">Pending</option>
+        <option value="APPROVED">Approved</option>
+        <option value="REJECTED">Rejected</option>
+        <option value="CANCELLED">Cancelled</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Calendar View -->
+  <div class="calendar-section">
+    <h3>Leave Calendar</h3>
+    
+    <div class="calendar-header">
+      <button (click)="previousMonth()" class="nav-btn">← Previous</button>
+      <h4>{{ getMonthYearString() }}</h4>
+      <button (click)="nextMonth()" class="nav-btn">Next →</button>
+    </div>
+
+    <div class="calendar">
+      <div class="weekdays">
+        <div class="weekday">Sun</div>
+        <div class="weekday">Mon</div>
+        <div class="weekday">Tue</div>
+        <div class="weekday">Wed</div>
+        <div class="weekday">Thu</div>
+        <div class="weekday">Fri</div>
+        <div class="weekday">Sat</div>
+      </div>
+
+      <div class="calendar-grid">
+        <div *ngFor="let week of calendarWeeks" class="week">
+          <div 
+            *ngFor="let day of week" 
+            [class]="'day' + (day ? ' ' + getDayStatusClass(day) : ' empty')"
+            [style.background-color]="day && day.leaves.length > 0 ? getLeaveTypeColor(day.leaves[0].leaveType) : 'transparent'"
+          >
+            <span class="date" *ngIf="day">{{ day.date }}</span>
+            <span class="leave-count" *ngIf="day && day.leaves.length > 0" title="Leaves on this day">
+              {{ day.leaves.length }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="legend">
+      <h5>Leave Types:</h5>
+      <div class="legend-item">
+        <span class="legend-color" style="background-color: #FFB6C1;"></span>
+        <span>Vacation</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-color" style="background-color: #87CEEB;"></span>
+        <span>Sick Leave</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-color" style="background-color: #F0E68C;"></span>
+        <span>Personal</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-color" style="background-color: #98FB98;"></span>
+        <span>Casual</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Team Leaves List View -->
+  <div class="leaves-list-section">
+    <h3>Team Leaves Details</h3>
+
+    <div *ngIf="loading" class="loading">
+      <p>Loading team leaves...</p>
+    </div>
+
+    <div *ngIf="!loading && filteredLeaves.length === 0" class="no-data">
+      <p>No leave records found</p>
+    </div>
+
+    <div *ngIf="!loading && filteredLeaves.length > 0" class="leaves-grid">
+      <div *ngFor="let leave of filteredLeaves" [class]="'leave-card status-' + leave.status.toLowerCase()">
+        <div class="card-header">
+          <h4>{{ leave.employee.username }}</h4>
+          <span [class]="'status-badge status-' + leave.status.toLowerCase()">
+            {{ leave.status }}
+          </span>
+        </div>
+
+        <div class="card-body">
+          <p><strong>Leave Type:</strong> {{ leave.leaveType }}</p>
+          <p><strong>Period:</strong> {{ leave.startDate | date: 'MMM dd, yyyy' }} - {{ leave.endDate | date: 'MMM dd, yyyy' }}</p>
+          <p><strong>Duration:</strong> {{ calculateDays(leave) }} days</p>
+          <p><strong>Reason:</strong> {{ leave.reason }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

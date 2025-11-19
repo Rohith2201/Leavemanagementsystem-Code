@@ -1,0 +1,62 @@
+<div class="my-leaves-container">
+  <h2>My Leave History</h2>
+
+  <div class="leave-balance-card">
+    <div class="balance-info">
+      <p><strong>Current Leave Balance:</strong> <span class="balance-value">{{ leaveBalance }}</span> days</p>
+    </div>
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-error">
+    {{ errorMessage }}
+  </div>
+
+  <div class="filter-section">
+    <label for="statusFilter">Filter by Status:</label>
+    <select id="statusFilter" [(ngModel)]="selectedStatus" (change)="onStatusChange()" class="status-filter">
+      <option *ngFor="let status of statusOptions" [value]="status">{{ status }}</option>
+    </select>
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    <p>Loading your leaves...</p>
+  </div>
+
+  <div *ngIf="!loading && filteredLeaves.length === 0" class="no-data">
+    <p>No leave records found</p>
+  </div>
+
+  <div *ngIf="!loading && filteredLeaves.length > 0" class="leaves-list">
+    <div *ngFor="let leave of filteredLeaves" class="leave-card">
+      <div class="leave-header">
+        <h3>{{ leave.leaveType }}</h3>
+        <span [ngClass]="'status ' + getStatusClass(leave.status)">{{ leave.status }}</span>
+      </div>
+
+      <div class="leave-details">
+        <div class="detail-row">
+          <span class="label">Start Date:</span>
+          <span class="value">{{ leave.startDate | date: 'MMM dd, yyyy' }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">End Date:</span>
+          <span class="value">{{ leave.endDate | date: 'MMM dd, yyyy' }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">Reason:</span>
+          <span class="value">{{ leave.reason }}</span>
+        </div>
+      </div>
+
+      <div class="leave-actions">
+        <button
+          *ngIf="leave.status === 'PENDING'"
+          (click)="cancelLeave(leave.id)"
+          class="btn btn-cancel"
+        >
+          Cancel Leave
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
